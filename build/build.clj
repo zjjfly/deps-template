@@ -4,7 +4,7 @@
             [clojure.tools.build.api :as b])
   (:import (java.io File)))
 
-(def lib ::clj-template)
+(def lib 'com.github.zjjfly/clj-template)
 ;(def version (format "1.2.%s" (b/git-count-revs nil)))
 (def version "1.0")
 (def clj-source "src/clj")
@@ -94,3 +94,14 @@
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis     basis}))
+
+(defn install-local
+      "install jar into local repository"
+      [_]
+      (jar _)
+      (b/install {:class-dir class-dir
+                  :uber-file uber-file
+                  :basis     basis
+                  :lib       lib
+                  :jar-file  jar-file
+                  :version   "1.0"}))
