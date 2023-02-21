@@ -4,20 +4,22 @@
             [clojure.tools.build.api :as b])
   (:import (java.io File)))
 
-(def lib 'com.github.zjjfly/clj-template)
+(def lib 'com.github.zjjfly/template)
+(def group-id (namespace lib))
+(def artifact-id (name lib))
 ;(def version (format "1.2.%s" (b/git-count-revs nil)))
 (def version "1.0")
-(def clj-source "src/clj")
-(def java-source "src/java")
+(def clj-source (str "src/clj/" artifact-id))
+(def java-source (str "src/java/" artifact-id))
 (def resources "src/resources")
-(def test-clj-source "test/clj")
-(def test-java-source "test/java")
+(def test-clj-source (str "test/clj/" artifact-id))
+(def test-java-source (str "test/java/" artifact-id))
 (def test-resources "test/resources")
 (def target-dir "target")
 (def class-dir "target/classes")
 (def basis (b/create-basis {:project "deps.edn"}))
-(def jar-file (format "target/%s-%s.jar" (name lib) version))
-(def uber-file (format "target/%s-%s-standalone.jar" (name lib) version))
+(def jar-file (format "target/%s-%s.jar" artifact-id version))
+(def uber-file (format "target/%s-%s-standalone.jar" artifact-id version))
 
 (defn java-file-exist?
   [dir]
@@ -96,12 +98,12 @@
            :basis     basis}))
 
 (defn install-local
-      "install jar into local repository"
-      [_]
-      (jar _)
-      (b/install {:class-dir class-dir
-                  :uber-file uber-file
-                  :basis     basis
-                  :lib       lib
-                  :jar-file  jar-file
-                  :version   "1.0"}))
+  "install jar into local repository"
+  [_]
+  (jar _)
+  (b/install {:class-dir class-dir
+              :uber-file uber-file
+              :basis     basis
+              :lib       lib
+              :jar-file  jar-file
+              :version   "1.0"}))
