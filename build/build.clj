@@ -132,6 +132,7 @@
   (let [c (requiring-resolve (symbol (str "build/" cmd)))]
     (if (nil? c)
       (do (println (str "This command \"" cmd "\" is not supported"))
+          (println "clj -M:build <command> [arguments....]")
           (println "Supported commands:")
           (println "  init          -- initial project structure")
           (println "  clean         -- cleanup build outputs")
