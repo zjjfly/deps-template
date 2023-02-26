@@ -12,7 +12,7 @@
 (defn gen-basis [opts]
   (b/create-basis
     {:project "deps.edn"
-     :aliases  (:aliases opts)}))
+     :aliases (:aliases opts)}))
 
 (def lib 'com.github.zjjfly/template)
 (def group-id (namespace lib))
@@ -113,7 +113,7 @@
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis     (gen-basis opts)
-           :main (symbol (str artifact-id ".core"))}))
+           :main      (symbol (str artifact-id ".core"))}))
 
 (defn install-local
   "install jar into local repository"
