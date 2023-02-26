@@ -9,11 +9,10 @@
   (cli/parse-opts
     args {:alias {:a :aliases} :coerce {:aliases [:keyword]}}))
 
-(defn gen-basis [args]
-  (let [aliases (parse-opts args)]
-    (b/create-basis
-      {:project "deps.edn"
-       :aliases (:aliases aliases)})))
+(defn gen-basis [opts]
+  (b/create-basis
+    {:project "deps.edn"
+     :aliases  (:aliases opts)}))
 
 (def lib 'com.github.zjjfly/template)
 (def group-id (namespace lib))
@@ -55,13 +54,13 @@
 
 (defn prep
   "prepare for building"
-  [args]
-  (init args)
+  [opts]
+  (init opts)
   (println "Writing pom.xml...")
   (b/write-pom {:class-dir class-dir
                 :lib       lib
                 :version   version
-                :basis     (gen-basis args)
+                :basis     (gen-basis opts)
                 :src-dirs  [java-source clj-source]})
   (println "Copying resources...")
   (b/copy-dir {:src-dirs   [resources]
@@ -69,81 +68,86 @@
 
 (defn compile-java
   "compile java source files"
-  [args]
+  [opts]
   (println "Compiling java sources...")
   (when (java-file-exist? java-source)
     (b/javac {:src-dirs   [java-source]
               :class-dir  class-dir
-              :basis      (gen-basis args)
+              :basis      (gen-basis opts)
               :javac-opts ["-source" "8" "-target" "8"]})))
 
 (defn compile-clj
   "compile clojure source files"
-  [args]
+  [opts]
   (println "Compiling clojure sources...")
-  (b/compile-clj {:basis     (gen-basis args)
+  (b/compile-clj {:basis     (gen-basis opts)
                   :src-dirs  [clj-source]
                   :class-dir class-dir}))
 
 (defn compile-all
   "compile all source files"
-  [args]
-  (compile-java args)
-  (compile-clj args))
+  [opts]
+  (compile-java opts)
+  (compile-clj opts))
 
 (defn jar
   "package jar file"
-  [args]
-  (println args)
-  (clean args)
-  (prep args)
-  (compile-all args)
+  [opts]
+  (println opts)
+  (clean opts)
+  (prep opts)
+  (compile-all opts)
   (println "Packaging jar...")
   (b/jar {:class-dir class-dir
           :jar-file  jar-file
-          :basis     (gen-basis args)
+          :basis     (gen-basis opts)
           :main      nil}))
 
 (defn uber
   "package uberjar file"
-  [args]
-  (clean args)
-  (prep args)
-  (compile-all args)
+  [opts]
+  (clean opts)
+  (prep opts)
+  (compile-all opts)
   (println "Packaging uberjar...")
   (b/uber {:class-dir class-dir
            :uber-file uber-file
-           :basis     (gen-basis args)
+           :basis     (gen-basis opts)
            :main (symbol (str artifact-id ".core"))}))
 
 (defn install-local
   "install jar into local repository"
-  [args]
-  (jar args)
+  [opts]
+  (jar opts)
   (println "Installing...")
   (b/install {:class-dir class-dir
               :uber-file uber-file
-              :basis     (gen-basis args)
+              :basis     (gen-basis opts)
               :lib       lib
               :jar-file  jar-file
               :version   "1.0"}))
 
 (defn -main [cmd & args]
-  (let [c (requiring-resolve (symbol (str "build/" cmd)))]
-    (if (nil? c)
-      (do (println (str "This command \"" cmd "\" is not supported"))
-          (println "clj -M:build <command> [arguments....]")
-          (println "Supported commands:")
-          (println "  init          -- initial project structure")
-          (println "  clean         -- cleanup build outputs")
-          (println "  prep          -- init & write pom.xml and copy resources to build path")
-          (println "  compile-java  -- compile java sources")
-          (println "  compile-clj   -- compile clojure sources")
-          (println "  compile-all   -- compile java & clojure sources")
-          (println "  jar           -- package jar file")
-          (println "  uber          -- package uberjar file")
-          (println "  install-local -- install package into local repository")
-          (println "Supported Arguments:")
-          (println "  --a --aliases -- aliases to apply")
-          )
-      (c args))))
+  (binding [*ns* (find-ns 'build)]
+    (let [c (resolve (symbol cmd))
+          opts (parse-opts args)]
+      (if (nil? c)
+        (do (println (str "This command \"" cmd "\" is not supported"))
+            (println "Usage:")
+            (println "  clj -M:build <command> [arguments....]")
+            (println "Supported commands:")
+            (println "  init          -- initial project structure")
+            (println "  clean         -- cleanup build outputs")
+            (println "  prep          -- init & write pom.xml and copy resources to build path")
+            (println "  compile-java  -- compile java sources")
+            (println "  compile-clj   -- compile clojure sources")
+            (println "  compile-all   -- compile java & clojure sources")
+            (println "  jar           -- package jar file")
+            (println "  uber          -- package uberjar file")
+            (println "  install-local -- install package into local repository")
+            (println "Supported Arguments:")
+            (println "  --a --aliases -- aliases to apply")
+            )
+        (do
+          (println (str "Input options: " opts))
+          (c opts))))))
