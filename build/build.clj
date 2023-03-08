@@ -5,10 +5,6 @@
             [clojure.tools.build.api :as b])
   (:import (java.io File)))
 
-(defn parse-opts [args]
-  (cli/parse-opts
-    args {:alias {:a :aliases} :coerce {:aliases [:keyword]}}))
-
 (defn gen-basis [opts]
   (b/create-basis
     {:project "deps.edn"
@@ -113,7 +109,9 @@
   (b/uber {:class-dir class-dir
            :uber-file uber-file
            :basis     (gen-basis opts)
-           :main      (symbol (str artifact-id ".core"))}))
+           :main      (if (:main opts)
+                        (:main opts)
+                        (str artifact-id ".core"))}))
 
 (defn install-local
   "install jar into local repository"
@@ -126,6 +124,18 @@
               :lib       lib
               :jar-file  jar-file
               :version   "1.0"}))
+
+(def spec {:aliases {:alias  :a
+                     :coerce [:keyword]
+                     :desc   "The aliases used to modify classpath"}
+           :main {:alias :m
+                  :desc "The main class used to run in uberjar"}})
+
+(defn parse-opts [args]
+  (cli/parse-opts
+    args {:spec spec}))
+
+(parse-opts ["-a" "dev" "-m" "clojure"])
 
 (defn -main [cmd & args]
   (binding [*ns* (find-ns 'build)]
@@ -146,7 +156,7 @@
             (println "  uber          -- package uberjar file")
             (println "  install-local -- install package into local repository")
             (println "Supported Arguments:")
-            (println "  --a --aliases -- aliases to apply")
+            (println (cli/format-opts {:spec spec :order [:aliases :main]}))
             )
         (do
           (println (str "Input options: " opts))
