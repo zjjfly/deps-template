@@ -135,8 +135,6 @@
   (cli/parse-opts
     args {:spec spec}))
 
-(parse-opts ["-a" "dev" "-m" "clojure"])
-
 (defn -main [cmd & args]
   (binding [*ns* (find-ns 'build)]
     (let [c (resolve (symbol cmd))
