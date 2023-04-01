@@ -139,7 +139,7 @@
   (binding [*ns* (find-ns 'build)]
     (let [c (resolve (symbol cmd))
           opts (parse-opts args)]
-      (if (nil? c)
+      (if (or (nil? c) (= cmd "help"))
         (do (println (str "This command \"" cmd "\" is not supported"))
             (println "Usage:")
             (println "  clj -M:build <command> [arguments....]")
