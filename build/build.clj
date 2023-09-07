@@ -35,6 +35,7 @@
 (defn init
   "init project structure,create necessary directories"
   [_]
+  (println "Initializing...")
   (let [source-dirs [clj-source java-source resources]
         test-dirs [test-clj-source test-java-source test-resources]
         all-dirs (concat source-dirs test-dirs)]
@@ -128,34 +129,40 @@
 (def spec {:aliases {:alias  :a
                      :coerce [:keyword]
                      :desc   "The aliases used to modify classpath"}
-           :main {:alias :m
-                  :desc "The main class used to run in uberjar"}})
+           :main    {:alias :m
+                     :desc  "The main class used to run in uberjar"}})
+
+(defn print-help []
+  (println "Usage:")
+  (println "  clj -M:build <command> [arguments....]")
+  (println "Supported commands:")
+  (println "  init          -- initial project structure")
+  (println "  clean         -- cleanup build outputs")
+  (println "  prep          -- init & write pom.xml and copy resources to build path")
+  (println "  compile-java  -- compile java sources")
+  (println "  compile-clj   -- compile clojure sources")
+  (println "  compile-all   -- compile java & clojure sources")
+  (println "  jar           -- package jar file")
+  (println "  uber          -- package uberjar file")
+  (println "  install-local -- install package into local repository")
+  (println "Supported Arguments:")
+  (println (cli/format-opts {:spec spec :order [:aliases :main]})))
 
 (defn parse-opts [args]
   (cli/parse-opts
     args {:spec spec}))
 
-(defn -main [cmd & args]
+(defn -main [& args]
   (binding [*ns* (find-ns 'build)]
-    (let [c (resolve (symbol cmd))
-          opts (parse-opts args)]
-      (if (or (nil? c) (= cmd "help"))
-        (do (println (str "This command \"" cmd "\" is not supported"))
-            (println "Usage:")
-            (println "  clj -M:build <command> [arguments....]")
-            (println "Supported commands:")
-            (println "  init          -- initial project structure")
-            (println "  clean         -- cleanup build outputs")
-            (println "  prep          -- init & write pom.xml and copy resources to build path")
-            (println "  compile-java  -- compile java sources")
-            (println "  compile-clj   -- compile clojure sources")
-            (println "  compile-all   -- compile java & clojure sources")
-            (println "  jar           -- package jar file")
-            (println "  uber          -- package uberjar file")
-            (println "  install-local -- install package into local repository")
-            (println "Supported Arguments:")
-            (println (cli/format-opts {:spec spec :order [:aliases :main]}))
-            )
-        (do
-          (println (str "Input options: " opts))
-          (c opts))))))
+    (if-let [cmd (first args)]
+      (let [c (resolve (symbol cmd))
+            opts (parse-opts args)]
+        (cond
+          (nil? c) (do (println (str "This command \"" cmd "\" is not supported"))
+                       (print-help))
+          (= cmd "help") (print-help)
+          :else (do
+                  (println (str "Input options: " opts))
+                  (c opts)))
+        )
+      (print-help))))
