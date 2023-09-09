@@ -10,16 +10,19 @@
     {:project "deps.edn"
      :aliases (:aliases opts)}))
 
+(defn java-source-path [group-id artifact-id]
+  (str (.replace group-id "." "/") "/" artifact-id))
+
 (def lib 'com.github.zjjfly/template)
 (def group-id (namespace lib))
 (def artifact-id (name lib))
 ;(def version (format "1.2.%s" (b/git-count-revs nil)))
 (def version "1.0")
 (def clj-source (str "src/clj/" artifact-id))
-(def java-source (str "src/java/" artifact-id))
+(def java-source (str "src/java/" (java-source-path group-id artifact-id)))
 (def resources "src/resources")
 (def test-clj-source (str "test/clj/" artifact-id))
-(def test-java-source (str "test/java/" artifact-id))
+(def test-java-source (str "test/java/" (java-source-path group-id artifact-id)))
 (def test-resources "test/resources")
 (def target-dir "target")
 (def class-dir "target/classes")
