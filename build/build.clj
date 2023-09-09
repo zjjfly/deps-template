@@ -130,7 +130,7 @@
                      :coerce [:keyword]
                      :desc   "The aliases used to modify classpath"}
            :main    {:alias :m
-                     :desc  "The main class used to run in uberjar"}})
+                     :desc  "The entrypoint class to run uberjar"}})
 
 (defn print-help []
   (println "Usage:")
@@ -155,8 +155,9 @@
 (defn -main [& args]
   (binding [*ns* (find-ns 'build)]
     (if-let [cmd (first args)]
-      (let [c (resolve (symbol cmd))
-            opts (parse-opts args)]
+      (let [c (resolve (symbol (str "build/" cmd)))
+            opts (parse-opts (rest args))]
+        (println c)
         (cond
           (nil? c) (do (println (str "This command \"" cmd "\" is not supported"))
                        (print-help))
