@@ -160,7 +160,6 @@
     (if-let [cmd (first args)]
       (let [c (resolve (symbol (str "build/" cmd)))
             opts (parse-opts (rest args))]
-        (println c)
         (cond
           (= cmd "help") (print-help)
           (nil? c) (do (println (str "This command \"" cmd "\" is not supported"))
