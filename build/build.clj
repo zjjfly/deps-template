@@ -13,16 +13,20 @@
 (defn java-source-path [group-id artifact-id]
   (str (.replace group-id "." "/") "/" artifact-id))
 
+(defn replace-hyphen [^String x]
+  (s/replace x "-" "_"))
+
 (def lib 'com.github.zjjfly/template)
 (def group-id (namespace lib))
 (def artifact-id (name lib))
+(def root-package (replace-hyphen artifact-id))
 ;(def version (format "1.2.%s" (b/git-count-revs nil)))
 (def version "1.0")
-(def clj-source (str "src/clj/" artifact-id))
-(def java-source (str "src/java/" (java-source-path group-id artifact-id)))
+(def clj-source (str "src/clj/" root-package))
+(def java-source (str "src/java/" (java-source-path group-id root-package)))
 (def resources "src/resources")
-(def test-clj-source (str "test/clj/" artifact-id))
-(def test-java-source (str "test/java/" (java-source-path group-id artifact-id)))
+(def test-clj-source (str "test/clj/" root-package))
+(def test-java-source (str "test/java/" (java-source-path group-id root-package)))
 (def test-resources "test/resources")
 (def target-dir "target")
 (def class-dir "target/classes")
