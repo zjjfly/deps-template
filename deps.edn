@@ -1,8 +1,8 @@
 {:paths   ["src/clj" "src/java" "src/resources" "target/classes"]
  :deps    {}
  :aliases {:build {:extra-paths ["build"]
-                   :extra-deps  {io.github.clojure/tools.build {:mvn/version "0.9.4"}
-                                 org.babashka/cli {:mvn/version "0.4.39"}}
+                   :extra-deps  {io.github.clojure/tools.build {:mvn/version "0.10.5"}
+                                 org.babashka/cli {:mvn/version "0.8.60"}}
                    :main-opts ["-m" "build"]
                    :ns-default  build}}
  }
