@@ -1,9 +1,12 @@
 (ns build
   (:require [babashka.cli :as cli]
+            [babashka.process :as process]
             [clojure.java.io :as io]
+            [clojure.tools.build.util.file :as file]
             [clojure.string :as s]
             [clojure.tools.build.api :as b])
-  (:import (java.io File)))
+  (:import (java.io File)
+           (java.nio.file Files)))
 
 (defn gen-basis [opts]
   (b/create-basis
@@ -32,6 +35,7 @@
 (def class-dir "target/classes")
 (def jar-file (format "target/%s-%s.jar" artifact-id version))
 (def uber-file (format "target/%s-%s-standalone.jar" artifact-id version))
+(def native-image-file (format "target/native/%s" artifact-id))
 
 (defn java-file-exist?
   [dir]
@@ -121,6 +125,13 @@
                         (:main opts)
                         (str artifact-id ".core"))}))
 
+(defn native-image
+  "build native image"
+  [opts]
+  (uber opts)
+  (io/make-parents (io/file native-image-file))
+  (process/shell "native-image" "-jar" uber-file "-o" native-image-file "-H:+ReportExceptionStackTraces" "--features=clj_easy.graal_build_time.InitClojureClasses" "--report-unsupported-elements-at-runtime" "--verbose" "--no-fallback"))
+
 (defn install-local
   "install jar into local repository"
   [opts]
@@ -151,6 +162,7 @@
   (println "  compile-all   -- compile java & clojure sources")
   (println "  jar           -- package jar file")
   (println "  uber          -- package uberjar file")
+  (println "  native-image  -- build native image")
   (println "  install-local -- install package into local repository")
   (println "Supported Arguments:")
   (println (cli/format-opts {:spec spec :order [:aliases :main]})))
@@ -173,3 +185,6 @@
                   (c opts)))
         )
       (print-help))))
+
+;build native image
+;native-image -jar target/template-1.0-standalone.jar -o target/native -H:+ReportExceptionStackTraces --features=clj_easy.graal_build_time.InitClojureClasses --report-unsupported-elements-at-runtime --verbose --no-fallback

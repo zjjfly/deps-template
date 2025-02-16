@@ -1,8 +1,9 @@
 {:paths   ["src/clj" "src/java" "src/resources" "target/classes"]
- :deps    {}
+ :deps {com.github.clj-easy/graal-build-time {:mvn/version "1.0.5"}}
  :aliases {:build {:extra-paths ["build"]
-                   :extra-deps  {io.github.clojure/tools.build {:mvn/version "0.10.5"}
-                                 org.babashka/cli {:mvn/version "0.8.60"}}
+                   :extra-deps  {io.github.clojure/tools.build {:mvn/version "0.10.7"}
+                                 org.babashka/cli {:mvn/version "0.8.62"}
+                                 babashka/process {:mvn/version "0.5.22"}}
                    :main-opts ["-m" "build"]
                    :ns-default  build}}
  }
