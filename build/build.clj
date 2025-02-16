@@ -2,11 +2,9 @@
   (:require [babashka.cli :as cli]
             [babashka.process :as process]
             [clojure.java.io :as io]
-            [clojure.tools.build.util.file :as file]
             [clojure.string :as s]
             [clojure.tools.build.api :as b])
-  (:import (java.io File)
-           (java.nio.file Files)))
+  (:import (java.io File)))
 
 (defn gen-basis [opts]
   (b/create-basis
